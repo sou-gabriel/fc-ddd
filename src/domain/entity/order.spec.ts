@@ -16,7 +16,7 @@ describe("Order unit tests", () => {
 
   it("should throw error when items amount is equal 0", () => {
     expect(() => {
-      new Order("123", "", []);
+      new Order("123", "1", []);
     }).toThrow("Items amount must be greater than 0");
   });
 

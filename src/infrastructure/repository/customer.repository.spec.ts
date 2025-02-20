@@ -100,6 +100,11 @@ describe("Customer repository test", () => {
     customer1.address = address1;
     customer2.address = address2;
 
+    await Promise.all([
+      customerRepository.create(customer1),
+      customerRepository.create(customer2),
+    ]);
+
     const customers = await customerRepository.findAll();
 
     expect(customers).toHaveLength(2);
