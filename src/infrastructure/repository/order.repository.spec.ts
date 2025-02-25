@@ -91,16 +91,20 @@ describe("Order repository test", () => {
 
     const productRepository = new ProductRepository();
     const product1 = new Product("1", "Product 1", 100);
-    await productRepository.create(product1);
+    const product2 = new Product("2", "Product 2", 150);
 
-    const orderItem1 = new OrderItem("1", product1.name, 100, product1.id, 1);
+    await Promise.all([
+      productRepository.create(product1),
+      productRepository.create(product2),
+    ]);
 
     const orderRepository = new OrderRepository();
+    const orderItem1 = new OrderItem("1", product1.name, 100, product1.id, 1);
     const order = new Order("1", customer.id, [orderItem1]);
     await orderRepository.create(order);
 
-    const product2 = new Product("2", "Product 2", 150);
-    await productRepository.create(product2);
+    const foundOrder = await orderRepository.findById(order.id);
+    expect(foundOrder?.items.length).toBe(1);
 
     const orderItem2 = new OrderItem(
       "2",
@@ -111,8 +115,10 @@ describe("Order repository test", () => {
     );
 
     order.addItem(orderItem2);
+    await orderRepository.update(order);
 
-    expect(order.total()).toBe(250);
+    const foundOrderUpdated = await orderRepository.findById(order.id);
+    expect(foundOrderUpdated?.items.length).toBe(2);
   });
 
   it("should find an order by id", async () => {

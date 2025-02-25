@@ -25,28 +25,45 @@ export class OrderRepository implements OrderRepositoryInterface {
         }
       );
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   async update(entity: Order): Promise<void> {
-    await OrderModel.update(
-      {
-        customer_id: entity.id,
-        total: entity.total(),
-        items: entity.items.map((item) => ({
-          name: item.name,
-          price: item.price,
-          product_id: item.productId,
-          quantity: item.quantity,
-        })),
-      },
-      {
-        where: {
-          id: entity.id,
+    const t = await OrderModel.sequelize!.transaction();
+    try {
+      await OrderModel.update(
+        {
+          customer_id: entity.id,
+          total: entity.total(),
         },
-      }
-    );
+        {
+          transaction: t,
+          where: {
+            id: entity.id,
+          },
+        }
+      );
+
+      await OrderItemModel.destroy({
+        where: { order_id: entity.id },
+        transaction: t,
+      });
+
+      const orderItems = entity.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        product_id: item.productId,
+        quantity: item.quantity,
+        order_id: entity.id,
+      }));
+
+      await OrderItemModel.bulkCreate(orderItems, { transaction: t });
+      await t.commit();
+    } catch {
+      t.rollback();
+    }
   }
 
   async findById(id: string): Promise<Order> {
