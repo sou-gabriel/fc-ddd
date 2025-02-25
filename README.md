@@ -91,3 +91,34 @@ O maior objetivo dos repositórios não é a busca, mas remontar os objetos da
 forma mais cuidadosa seguindo as entidades
 
 1 repositório por agregado
+
+--- Domain events
+
+Use um evento de domínio para capturar uma ocorrência de algo que aconteceu no
+domínio
+
+Guardar o histórico de tudo que está ocorrendo no meu sistema
+
+Todo evento deve ser representado em uma ação realizada no passado
+- UserCreated
+- OrderPlaced
+- EmailSent
+
+Quando utilizar? Quando queremos notificar outros Bounded Contexts de uma
+mudança de estado
+
+Componentes
+- Event (evento que acontece)
+- Handler (ação que é executada quando um evento é emitido): Executa o processamento 
+quando um evento é chamado
+- Event Dispatcher: Responsável por armazenar e executar os handlers de um evneto
+quando ele for disparado
+
+Dinâmica
+- Criar um "Event Dispatcher"
+- Criar um "Evento"
+- Criar um "Handler" para o "Evento"
+- Registrar o Evento, juntamente com o Handler no "Event Dispatcher"
+
+Agora para disparar um evento, basta executar o método "notify" do "Event Dispatcher". 
+Nesse momento todos os Handlers registrados no evento serão executados
