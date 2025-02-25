@@ -60,26 +60,9 @@ describe("Order repository test", () => {
     const orderRepository = new OrderRepository();
     await orderRepository.create(order);
 
-    const orderModel = await OrderModel.findOne({
-      where: { id: order.id },
-      include: ["items"],
-    });
+    const orderFromDb = await orderRepository.findById(order.id);
 
-    expect(orderModel?.toJSON()).toStrictEqual({
-      id: order.id,
-      customer_id: customer.id,
-      total: order.total(),
-      items: [
-        {
-          id: orderItem.id,
-          name: orderItem.name,
-          price: orderItem.price,
-          quantity: orderItem.quantity,
-          product_id: orderItem.productId,
-          order_id: order.id,
-        },
-      ],
-    });
+    expect(orderFromDb).toStrictEqual(order);
   });
 
   it("should upate an order", async () => {
@@ -117,8 +100,8 @@ describe("Order repository test", () => {
     order.addItem(orderItem2);
     await orderRepository.update(order);
 
-    const foundOrderUpdated = await orderRepository.findById(order.id);
-    expect(foundOrderUpdated?.items.length).toBe(2);
+    const orderFromDb = await orderRepository.findById(order.id);
+    expect(orderFromDb?.items.length).toBe(2);
   });
 
   it("should find an order by id", async () => {
@@ -148,8 +131,8 @@ describe("Order repository test", () => {
     const order = new Order("1", customer.id, [orderItem]);
     await orderRepository.create(order);
 
-    const foundOrder = await orderRepository.findById(order.id);
-    expect(foundOrder).toStrictEqual(order);
+    const orderFromDb = await orderRepository.findById(order.id);
+    expect(orderFromDb).toStrictEqual(order);
   });
 
   it("should find all orders", async () => {
@@ -196,7 +179,7 @@ describe("Order repository test", () => {
       orderRepository.create(order2),
     ]);
 
-    const orders = await orderRepository.findAll();
-    expect(orders).toStrictEqual([order1, order2]);
+    const ordersFromDb = await orderRepository.findAll();
+    expect(ordersFromDb).toStrictEqual([order1, order2]);
   });
 });
